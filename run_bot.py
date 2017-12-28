@@ -5,8 +5,7 @@
 
     By Eli Anderson
 
-    Ideas -- * make keys three words instead of two?
-             * If the bot decides to post a submission, give it a random chance of it being a link post
+    Ideas -- * If the bot decides to post a submission, give it a random chance of it being a link post
              * If someone replies to bot, reply back to them?
 """
 
@@ -24,7 +23,11 @@ from textblob import TextBlob
 
 def authenticate() :
     print('Authenticating...')
-    reddit = praw.Reddit()
+    reddit = praw.Reddit(client_id='0rXzDRFz76Wqkg',
+                         client_secret='yO998bCXh0WfxhnE1hEx4PT6jk8',
+                         user_agent='user_simulator v0.1',
+                         username='_user_simulator_',
+                         password='elephantsanddonkeysgrowbigears')
     print('Authenticated as ' + str(reddit.user.me()))
     return reddit
 
@@ -33,11 +36,12 @@ def generate_chain(text, chain) :
     words = text.split(' ')
 
     # the first word will be the key, and the subsequent word (index 1) will be the value
-    idx = 1
+    idx = 2
 
     for word_value in words[idx+1:] :
-        # to have decent coherency, each key will be two words -- e.g. in the 1st loop, key will be 'words[0] words[1]'
-        key = words[idx-1] + ' ' + words[idx]
+        # to have decent coherency, each key will be three words -- e.g. in the 1st loop, key will be
+        # 'words[0] words[1] words[3]'
+        key = words[idx-2] + ' ' + words[idx-1] + ' ' + words[idx]
 
         # if a key is already in the chain, add word_value to the key's value, which is a list
         if key in chain and word_value not in chain[key]:
@@ -68,6 +72,7 @@ def generate_comment(chain, starting_word) :
             print('Invalid word. Choosing a different one...')
             post_comment(chain)
     print(word1)
+
     # find a key that the first word belongs to and set word1 to that key
     key_list = []
     for key in chain.keys() :
@@ -77,13 +82,13 @@ def generate_comment(chain, starting_word) :
     word1 = random.choice(key_list)
 
     message = word1.capitalize()
-    print('First two words: ' + message)
+    print('First three words: ' + message)
     # subtract 10 from char_limit since there'll need to be room for the last word if necessary
     while len(message) < (char_limit - 10) :
 
-        # if word1 doesn't already have two words, add the word before word1
-        if len(word1.split(' ')) < 2 :
-            word1 = message.split(' ')[len(message.split(' '))-2] + ' ' + word1
+        # if word1 doesn't already have three words, add the two words before word1
+        if len(word1.split(' ')) < 3 :
+            word1 = message.split(' ')[len(message.split(' '))-3] + ' ' + message.split(' ')[len(message.split(' '))-2] + ' ' + word1
 
         word2 = ''
         # choose the next word; if word1 isn't in chain's keys, then regenerate the message
@@ -267,7 +272,7 @@ def post_comment(chain) :
             try :
                 chosen_submission.reply(comment)
             except :
-                print('Comment was NOT posted.')
+                print('\n')
 
         # add submission ID to that list
         submissions_replied_to.append(chosen_submission.id)
@@ -309,7 +314,7 @@ def post_comment(chain) :
             try :
                 comment.reply(message)
             except :
-                print('Comment was NOT posted.')
+                print('\n')
 
         print('Replied to comment ' + comment.id)
         comments_replied_to.append(comment.id)
@@ -322,7 +327,7 @@ def post_comment(chain) :
         try:
             chosen_submission.reply(message)
         except:
-            print('Comment was NOT posted.')
+            print('\n')
         submissions_replied_to.append(chosen_submission.id)
         with open('submissions_replied_to.txt', 'a') as file:
             file.write(chosen_submission.id + '\n')
