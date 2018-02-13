@@ -364,7 +364,7 @@ def run_bot(reddit, comments_replied_to, submissions_replied_to) :
 
     # Loop through both of my accounts' comment/submission history and form a Markov dictionaries from them
     print('Reading comments and submissions...')
-    for comment in reddit.redditor('_pony_slaystation_').comments.new(limit=None) :
+    for comment in reddit.redditor('').comments.new(limit=None) :
 
         # Write all of the user's comments to user_comments.txt
         with open('user_comments.txt', 'a') as file:
@@ -374,7 +374,7 @@ def run_bot(reddit, comments_replied_to, submissions_replied_to) :
             except UnicodeError :
                 print('Comment contained non UTF-8 chars; discarded.')
 
-    for comment in reddit.redditor('moldyxorange').comments.new(limit=None):
+    for comment in reddit.redditor('').comments.new(limit=None):
         with open('user_comments.txt', 'a') as file:
             try :
                 body = comment.body.replace('\n', '. ')
