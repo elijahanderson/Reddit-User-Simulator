@@ -44,7 +44,7 @@ def generate_chain(text, chain) :
         key = words[idx-2] + ' ' + words[idx-1] + ' ' + words[idx]
 
         # if a key is already in the chain, add word_value to the key's value, which is a list
-        if key in chain and word_value not in chain[key]:
+        if key in chain:
             chain[key].append(word_value)
 
         # if key isn't already in the chain, create that key and create a value list for it
@@ -108,15 +108,21 @@ def generate_comment(chain, starting_word) :
 
         # set word1 to word2, allowing the while loop to continue adding to the message
         word1 = word2
-
+        # keep track of recursion so the bot won't get stuck in a generate loop
+        generate_count = 0
         # sometimes word2 will be '' and that causes an IndexError with textbubble
         while True :
             try :
                 p_o_s2 = TextBlob(word2).tags[0][1]
                 break
             except IndexError :
+                generate_count += 1
                 print('Invalid word. Regenerating comment...')
-                return generate_comment(chain, starting_word)
+                # avoid getting stuck in a generation loop
+                if generate_count >= 10 :
+                    post_comment(chain)
+                else :
+                    return generate_comment(chain, starting_word)
 
         i = random.randint(0, 4)
         # 1 in 5 chance to end the message after 25 chars if word2 has punctuation
@@ -314,7 +320,7 @@ def post_comment(chain) :
             try :
                 comment.reply(message)
             except :
-                print('\n')
+                print('\nAn error occurred. Comment was not posted.')
 
         print('Replied to comment ' + comment.id)
         comments_replied_to.append(comment.id)
@@ -326,8 +332,9 @@ def post_comment(chain) :
         message = generate_comment(chain, starting_word)
         try:
             chosen_submission.reply(message)
+            print('Replied!')
         except:
-            print('\n')
+            print('Error occurred.')
         submissions_replied_to.append(chosen_submission.id)
         with open('submissions_replied_to.txt', 'a') as file:
             file.write(chosen_submission.id + '\n')
