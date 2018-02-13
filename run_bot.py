@@ -23,8 +23,7 @@ from textblob import TextBlob
 
 def authenticate() :
     print('Authenticating...')
-    reddit = praw.Reddit(client_id='0rXzDRFz76Wqkg',
-                         client_secret='yO998bCXh0WfxhnE1hEx4PT6jk8',
+    reddit = praw.Reddit(
                          user_agent='user_simulator v0.1',
                          username='_user_simulator_',
                          password='elephantsanddonkeysgrowbigears')
